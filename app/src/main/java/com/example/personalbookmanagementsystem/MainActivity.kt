@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -56,6 +57,7 @@ fun BookListScreen(
     var title by remember { mutableStateOf("") }
     var author by remember { mutableStateOf("") }
     var genre by remember { mutableStateOf("") }
+    var editingBook by remember { mutableStateOf<Book?>(null) } // Track book being edited
 
     LaunchedEffect(Unit) {
         books.addAll(bookDao.getAllBooks())
@@ -93,8 +95,13 @@ fun BookListScreen(
             onClick = {
                 coroutineScope.launch {
                     if (title.isNotEmpty() && author.isNotEmpty()) {
-                        val newBook = Book(title = title, author = author, genre = genre, dateAdded = System.currentTimeMillis()
-                            .toString(), progress = 0)
+                        val newBook = Book(
+                            title = title,
+                            author = author,
+                            genre = genre,
+                            dateAdded = System.currentTimeMillis().toString(),
+                            progress = 0
+                        )
                         bookDao.insertBook(newBook)
                         books.clear()
                         books.addAll(bookDao.getAllBooks())
@@ -118,6 +125,7 @@ fun BookListScreen(
             items(books) { book ->
                 BookCard(
                     book = book,
+                    onEdit = { editingBook = book }, // Open edit dialog
                     onDelete = {
                         coroutineScope.launch {
                             bookDao.deleteBookByTitle(book.title)
@@ -130,10 +138,26 @@ fun BookListScreen(
             }
         }
     }
+
+    // Show Edit Dialog when editingBook is not null
+    editingBook?.let { book ->
+        EditBookDialog(
+            book = book,
+            onDismiss = { editingBook = null },
+            onSave = { updatedBook ->
+                coroutineScope.launch {
+                    bookDao.insertBook(updatedBook) // Update book in database
+                    books.clear()
+                    books.addAll(bookDao.getAllBooks()) // Refresh list
+                }
+                editingBook = null
+            }
+        )
+    }
 }
 
 @Composable
-fun BookCard(book: Book, onDelete: () -> Unit) {
+fun BookCard(book: Book, onEdit: () -> Unit, onDelete: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -151,12 +175,74 @@ fun BookCard(book: Book, onDelete: () -> Unit) {
                 Text(text = "${book.title} by ${book.author}")
                 Text(text = "Genre: ${book.genre}")
             }
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Book"
-                )
+            Row {
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit Book"
+                    )
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Book"
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+fun EditBookDialog(book: Book, onDismiss: () -> Unit, onSave: (Book) -> Unit) {
+    var title by remember { mutableStateOf(book.title) }
+    var author by remember { mutableStateOf(book.author) }
+    var genre by remember { mutableStateOf(book.genre ?: "") }
+    var progress by remember { mutableStateOf(book.progress.toString()) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Book") },
+        text = {
+            Column {
+                TextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Book Title") }
+                )
+                TextField(
+                    value = author,
+                    onValueChange = { author = it },
+                    label = { Text("Author") }
+                )
+                TextField(
+                    value = genre,
+                    onValueChange = { genre = it },
+                    label = { Text("Genre (Optional)") }
+                )
+                TextField(
+                    value = progress,
+                    onValueChange = { progress = it.filter { c -> c.isDigit() } },
+                    label = { Text("Progress (%)") }
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                if (title.isNotEmpty() && author.isNotEmpty()) {
+                    onSave(
+                        book.copy(
+                            title = title,
+                            author = author,
+                            genre = genre,
+                            progress = progress.toIntOrNull() ?: 0
+                        )
+                    )
+                }
+            }) { Text("Save") }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }
