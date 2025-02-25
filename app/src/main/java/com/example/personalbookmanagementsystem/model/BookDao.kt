@@ -1,4 +1,4 @@
-package com.example.personalbookmanagementsystem
+package com.example.personalbookmanagementsystem.model
 
 import androidx.room.*
 

@@ -1,8 +1,7 @@
-package com.example.personalbookmanagementsystem
+package com.example.personalbookmanagementsystem.model
 
 import android.content.Context
 import androidx.room.Room
-import com.example.personalbookmanagementsystem.AppDatabase
 
 object DatabaseInstance {
     private var INSTANCE: AppDatabase? = null
