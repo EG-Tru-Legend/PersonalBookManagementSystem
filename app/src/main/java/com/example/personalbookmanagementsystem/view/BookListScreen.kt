@@ -17,22 +17,70 @@ fun BookListScreen(
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val books = remember { mutableStateListOf<Book>() }
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedGenre by remember { mutableStateOf("") }
+    var isSorted by remember { mutableStateOf(false) }
+    var books by remember { mutableStateOf(listOf<Book>()) }
     var title by remember { mutableStateOf("") }
     var author by remember { mutableStateOf("") }
     var genre by remember { mutableStateOf("") }
     var editingBook by remember { mutableStateOf<Book?>(null) }
 
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
-        books.addAll(bookDao.getAllBooks())
+        books = bookDao.getAllBooks()
     }
 
-    Column(
-        modifier = modifier
-            .padding(16.dp)
-            .fillMaxSize()
-    ) {
+    // Filter and sort logic
+    val filteredBooks = remember {
+        derivedStateOf {
+            books.filter {
+                it.title.contains(searchQuery, ignoreCase = true) ||
+                        it.author.contains(searchQuery, ignoreCase = true)
+            }.filter {
+                selectedGenre.isEmpty() || it.genre.equals(selectedGenre, ignoreCase = true)
+            }
+        }
+    }
+
+    val sortedBooks = remember {
+        derivedStateOf {
+            if (isSorted) filteredBooks.value.sortedBy { it.title }
+            else filteredBooks.value
+        }
+    }
+
+    Column(modifier = modifier.padding(16.dp)) {
+        // Search Field
+        TextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Search for a book") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Filter by Genre
+        TextField(
+            value = selectedGenre,
+            onValueChange = { selectedGenre = it },
+            label = { Text("Filter by Genre") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Sorting Button
+        Button(
+            onClick = { isSorted = !isSorted },
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+            Text(if (isSorted) "Disable Sorting" else "Sort by Title")
+        }
+
+        // Add Book Fields
         TextField(
             value = title,
             onValueChange = { title = it },
@@ -69,8 +117,7 @@ fun BookListScreen(
                             progress = 0
                         )
                         bookDao.insertBook(newBook)
-                        books.clear()
-                        books.addAll(bookDao.getAllBooks())
+                        books = bookDao.getAllBooks()
                         snackbarHostState.showSnackbar("Book added: $title")
                         title = ""
                         author = ""
@@ -88,15 +135,14 @@ fun BookListScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(books) { book ->
+            items(sortedBooks.value) { book ->
                 BookCard(
                     book = book,
                     onEdit = { editingBook = book },
                     onDelete = {
                         coroutineScope.launch {
                             bookDao.deleteBook(book)
-                            books.clear()
-                            books.addAll(bookDao.getAllBooks())
+                            books = bookDao.getAllBooks()
                         }
                     }
                 )
@@ -105,7 +151,6 @@ fun BookListScreen(
         }
     }
 
-    // Edit book dialog
     editingBook?.let { book ->
         EditBookDialog(
             book = book,
@@ -113,13 +158,14 @@ fun BookListScreen(
             onSave = { updatedBook ->
                 coroutineScope.launch {
                     bookDao.updateBook(updatedBook)
-                    books.clear()
-                    books.addAll(bookDao.getAllBooks())
+                    books = bookDao.getAllBooks()
                 }
                 editingBook = null
             }
         )
     }
 }
+
+
 
 
