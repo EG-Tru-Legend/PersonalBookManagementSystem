@@ -18,7 +18,6 @@ fun BookListScreen(
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedGenre by remember { mutableStateOf("") }
     var isSorted by remember { mutableStateOf(false) }
     var books by remember { mutableStateOf(listOf<Book>()) }
     var editingBook by remember { mutableStateOf<Book?>(null) }
@@ -29,14 +28,12 @@ fun BookListScreen(
         books = bookDao.getAllBooks()
     }
 
-    // Filter and sort logic
+    // Filtering by title and author only
     val filteredBooks = remember {
         derivedStateOf {
             books.filter {
                 it.title.contains(searchQuery, ignoreCase = true) ||
                         it.author.contains(searchQuery, ignoreCase = true)
-            }.filter {
-                selectedGenre.isEmpty() || it.genre.equals(selectedGenre, ignoreCase = true)
             }
         }
     }
@@ -54,16 +51,6 @@ fun BookListScreen(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             label = { Text("Search for a book") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Filter by Genre
-        TextField(
-            value = selectedGenre,
-            onValueChange = { selectedGenre = it },
-            label = { Text("Filter by Genre") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -88,6 +75,13 @@ fun BookListScreen(
                         coroutineScope.launch {
                             bookDao.deleteBook(book)
                             books = bookDao.getAllBooks()
+                            snackbarHostState.showSnackbar("Deleted: ${book.title}")
+                        }
+                    },
+                    onProgressChange = { newProgress ->
+                        coroutineScope.launch {
+                            bookDao.updateBook(book.copy(progress = newProgress))
+                            books = bookDao.getAllBooks()
                         }
                     }
                 )
@@ -110,8 +104,3 @@ fun BookListScreen(
         )
     }
 }
-
-
-
-
-
