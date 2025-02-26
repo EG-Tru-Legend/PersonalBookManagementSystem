@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -11,6 +12,7 @@ import com.example.personalbookmanagementsystem.model.Book
 import com.example.personalbookmanagementsystem.model.BookDao
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookListScreen(
     bookDao: BookDao,
@@ -22,18 +24,41 @@ fun BookListScreen(
     var books by remember { mutableStateOf(listOf<Book>()) }
     var editingBook by remember { mutableStateOf<Book?>(null) }
 
+    // States for genre filtering
+    var selectedGenre by remember { mutableStateOf("All") }
+    var filterExpanded by remember { mutableStateOf(false) }
+
+    // Predefined genres (alphabetically sorted with "All" as the first option)
+    val genres = listOf(
+        "All",
+        "Academic Papers",
+        "Action Adventure",
+        "Comic",
+        "Fantasy",
+        "Historical",
+        "Horror",
+        "Manga",
+        "Mystery",
+        "Paranormal",
+        "Romance",
+        "Science Fiction",
+        "Science Fiction & Fantasy",
+        "Thriller"
+    )
+
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         books = bookDao.getAllBooks()
     }
 
-    // Filtering by title and author only
+    // Filter by search query and genre (if selectedGenre is not "All")
     val filteredBooks = remember {
         derivedStateOf {
-            books.filter {
-                it.title.contains(searchQuery, ignoreCase = true) ||
-                        it.author.contains(searchQuery, ignoreCase = true)
+            books.filter { book ->
+                (book.title.contains(searchQuery, ignoreCase = true) ||
+                        book.author.contains(searchQuery, ignoreCase = true)) &&
+                        (selectedGenre == "All" || book.genre.equals(selectedGenre, ignoreCase = true))
             }
         }
     }
@@ -53,6 +78,37 @@ fun BookListScreen(
             label = { Text("Search for a book") },
             modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Genre Filter Dropdown Button
+        ExposedDropdownMenuBox(
+            expanded = filterExpanded,
+            onExpandedChange = { filterExpanded = !filterExpanded }
+        ) {
+            TextField(
+                value = selectedGenre,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Filter by Genre") },
+                trailingIcon = { TrailingIcon(expanded = filterExpanded) },
+                modifier = Modifier.menuAnchor().fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = filterExpanded,
+                onDismissRequest = { filterExpanded = false }
+            ) {
+                genres.forEach { genreOption ->
+                    DropdownMenuItem(
+                        text = { Text(text = genreOption) },
+                        onClick = {
+                            selectedGenre = genreOption
+                            filterExpanded = false
+                        }
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
