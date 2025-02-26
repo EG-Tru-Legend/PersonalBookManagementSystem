@@ -12,7 +12,9 @@ object DatabaseInstance {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "book-database"
-            ).build()
+            )
+                .fallbackToDestructiveMigration()
+                .build()
         }
         return INSTANCE!!
     }

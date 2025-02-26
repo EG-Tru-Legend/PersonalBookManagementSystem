@@ -5,9 +5,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "books")
 data class Book(
-    @PrimaryKey val title: String, // Book title
-    val author: String, // Author of the book
-    val genre: String?, // Genre of the book (optional)
-    val dateAdded: String, // Date the book was added
-    val progress: Int // Reading progress in percentage
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val title: String,
+    val author: String,
+    val genre: String?,
+    val dateAdded: String,
+    val progress: Int
 )

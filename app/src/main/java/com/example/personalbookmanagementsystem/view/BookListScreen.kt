@@ -61,6 +61,7 @@ fun BookListScreen(
                 coroutineScope.launch {
                     if (title.isNotEmpty() && author.isNotEmpty()) {
                         val newBook = Book(
+                            id = 0, // Room will auto-generate the id
                             title = title,
                             author = author,
                             genre = genre,
@@ -93,7 +94,7 @@ fun BookListScreen(
                     onEdit = { editingBook = book },
                     onDelete = {
                         coroutineScope.launch {
-                            bookDao.deleteBookByTitle(book.title)
+                            bookDao.deleteBook(book) // Delete by Book object which contains ID
                             books.clear()
                             books.addAll(bookDao.getAllBooks())
                         }
@@ -104,13 +105,14 @@ fun BookListScreen(
         }
     }
 
+    // Edit book dialog
     editingBook?.let { book ->
         EditBookDialog(
             book = book,
             onDismiss = { editingBook = null },
             onSave = { updatedBook ->
                 coroutineScope.launch {
-                    bookDao.insertBook(updatedBook)
+                    bookDao.updateBook(updatedBook) // Update the existing book using its ID
                     books.clear()
                     books.addAll(bookDao.getAllBooks())
                 }
@@ -119,3 +121,5 @@ fun BookListScreen(
         )
     }
 }
+
+
