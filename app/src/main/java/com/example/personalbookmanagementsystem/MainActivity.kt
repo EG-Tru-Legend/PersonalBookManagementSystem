@@ -10,7 +10,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.example.personalbookmanagementsystem.model.DatabaseInstance
-import com.example.personalbookmanagementsystem.view.AddBookScreen
+import com.example.personalbookmanagementsystem.ui.AddBookScreen
 import com.example.personalbookmanagementsystem.ui.BookListScreen
 import com.example.personalbookmanagementsystem.ui.theme.PersonalBookManagementSystemTheme
 import kotlinx.coroutines.launch

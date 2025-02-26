@@ -1,25 +1,46 @@
-package com.example.personalbookmanagementsystem.view
+package com.example.personalbookmanagementsystem.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.example.personalbookmanagementsystem.model.Book
 import com.example.personalbookmanagementsystem.model.BookDao
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBookScreen(
     bookDao: BookDao,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
-    onBookAdded: () -> Unit = {} // Optional callback to navigate after adding a book
+    onBookAdded: () -> Unit = {}
 ) {
     var title by remember { mutableStateOf("") }
     var author by remember { mutableStateOf("") }
-    var genre by remember { mutableStateOf("") }
+    var selectedGenre by remember { mutableStateOf("") }
+    var genreExpanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+
+    // Predefined genres sorted alphabetically
+    val genres = listOf(
+        "Academic Papers",
+        "Action Adventure",
+        "Comic",
+        "Fantasy",
+        "Historical",
+        "Horror",
+        "Manga",
+        "Mystery",
+        "Paranormal",
+        "Romance",
+        "Science Fiction",
+        "Science Fiction & Fantasy",
+        "Thriller"
+    )
 
     Column(modifier = modifier.padding(16.dp)) {
         TextField(
@@ -29,6 +50,8 @@ fun AddBookScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
         TextField(
             value = author,
             onValueChange = { author = it },
@@ -36,12 +59,38 @@ fun AddBookScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        TextField(
-            value = genre,
-            onValueChange = { genre = it },
-            label = { Text("Genre") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Genre Dropdown using Material 3's ExposedDropdownMenuBox
+        ExposedDropdownMenuBox(
+            expanded = genreExpanded,
+            onExpandedChange = { genreExpanded = !genreExpanded }
+        ) {
+            TextField(
+                value = selectedGenre,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Genre") },
+                trailingIcon = { TrailingIcon(expanded = genreExpanded) },
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = genreExpanded,
+                onDismissRequest = { genreExpanded = false }
+            ) {
+                genres.forEach { genreOption ->
+                    DropdownMenuItem(
+                        text = { Text(text = genreOption) },
+                        onClick = {
+                            selectedGenre = genreOption
+                            genreExpanded = false
+                        }
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -53,17 +102,15 @@ fun AddBookScreen(
                             id = 0,
                             title = title,
                             author = author,
-                            genre = genre,
+                            genre = selectedGenre,
                             dateAdded = System.currentTimeMillis().toString(),
                             progress = 0
                         )
                         bookDao.insertBook(newBook)
                         snackbarHostState.showSnackbar("Book added: $title")
-                        // Reset the fields
                         title = ""
                         author = ""
-                        genre = ""
-                        // Optionally switch back to the list screen
+                        selectedGenre = ""
                         onBookAdded()
                     } else {
                         snackbarHostState.showSnackbar("Title and Author are required.")

@@ -2,19 +2,40 @@ package com.example.personalbookmanagementsystem.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import com.example.personalbookmanagementsystem.model.Book
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditBookDialog(book: Book, onDismiss: () -> Unit, onSave: (Book) -> Unit) {
+fun EditBookDialog(
+    book: Book,
+    onDismiss: () -> Unit,
+    onSave: (Book) -> Unit
+) {
     var title by remember { mutableStateOf(book.title) }
     var author by remember { mutableStateOf(book.author) }
-    var genre by remember { mutableStateOf(book.genre ?: "") }
+    var selectedGenre by remember { mutableStateOf(book.genre ?: "") }
     var progress by remember { mutableStateOf(book.progress.toString()) }
+    var genreExpanded by remember { mutableStateOf(false) }
+
+    // Predefined genres sorted alphabetically
+    val genres = listOf(
+        "Academic Papers",
+        "Action Adventure",
+        "Comic",
+        "Fantasy",
+        "Historical",
+        "Horror",
+        "Manga",
+        "Mystery",
+        "Paranormal",
+        "Romance",
+        "Science Fiction",
+        "Science Fiction & Fantasy",
+        "Thriller"
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -31,11 +52,34 @@ fun EditBookDialog(book: Book, onDismiss: () -> Unit, onSave: (Book) -> Unit) {
                     onValueChange = { author = it },
                     label = { Text("Author") }
                 )
-                TextField(
-                    value = genre,
-                    onValueChange = { genre = it },
-                    label = { Text("Genre (Optional)") }
-                )
+                // Genre Dropdown for editing
+                ExposedDropdownMenuBox(
+                    expanded = genreExpanded,
+                    onExpandedChange = { genreExpanded = !genreExpanded }
+                ) {
+                    TextField(
+                        value = selectedGenre,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Genre") },
+                        trailingIcon = { TrailingIcon(expanded = genreExpanded) },
+                        modifier = Modifier.menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = genreExpanded,
+                        onDismissRequest = { genreExpanded = false }
+                    ) {
+                        genres.forEach { genreOption ->
+                            DropdownMenuItem(
+                                text = { Text(text = genreOption) },
+                                onClick = {
+                                    selectedGenre = genreOption
+                                    genreExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
                 TextField(
                     value = progress,
                     onValueChange = { progress = it.filter { c -> c.isDigit() } },
@@ -50,16 +94,17 @@ fun EditBookDialog(book: Book, onDismiss: () -> Unit, onSave: (Book) -> Unit) {
                         book.copy(
                             title = title,
                             author = author,
-                            genre = genre,
+                            genre = selectedGenre,
                             progress = progress.toIntOrNull() ?: 0
                         )
                     )
                 }
-            }) { Text("Save") }
+            }) {
+                Text("Save")
+            }
         },
         dismissButton = {
             Button(onClick = onDismiss) { Text("Cancel") }
         }
     )
 }
-
