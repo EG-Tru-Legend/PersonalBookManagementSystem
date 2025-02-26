@@ -47,7 +47,7 @@ fun EditBookDialog(book: Book, onDismiss: () -> Unit, onSave: (Book) -> Unit) {
             Button(onClick = {
                 if (title.isNotEmpty() && author.isNotEmpty()) {
                     onSave(
-                        book.copy(  // Make sure to pass the id unchanged
+                        book.copy(
                             title = title,
                             author = author,
                             genre = genre,
