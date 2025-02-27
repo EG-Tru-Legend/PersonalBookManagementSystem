@@ -122,6 +122,17 @@ fun BookListScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Track progress stats
+        val totalBooks = books.size
+        val completedBooks = books.count { it.progress == 100 }
+
+        Text(
+            text = "Books Read: $completedBooks / $totalBooks",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(sortedBooks.value) { book ->
                 BookCard(
