@@ -1,5 +1,6 @@
 package com.example.personalbookmanagementsystem.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -20,11 +21,14 @@ fun BookCard(
     onDelete: () -> Unit,
     onProgressChange: (Int) -> Unit
 ) {
+    var pressed by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .padding(8.dp)
+            .clickable { pressed = !pressed },
+        elevation = if (pressed) CardDefaults.cardElevation(defaultElevation = 8.dp) else CardDefaults.cardElevation(defaultElevation = 4.dp) // Elevation change based on the state
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
