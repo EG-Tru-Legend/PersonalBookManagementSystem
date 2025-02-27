@@ -7,13 +7,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.personalbookmanagementsystem.model.Book
-import com.example.personalbookmanagementsystem.model.BookDao
+import com.example.personalbookmanagementsystem.viewmodel.BookViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddBookScreen(
-    bookDao: BookDao,
+    viewModel: BookViewModel,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
     onBookAdded: () -> Unit = {}
@@ -24,6 +24,7 @@ fun AddBookScreen(
     var genreExpanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
+    // Predefined genres sorted alphabetically
     val genres = listOf(
         "Academic Papers",
         "Action Adventure",
@@ -103,7 +104,7 @@ fun AddBookScreen(
                             dateAdded = System.currentTimeMillis().toString(),
                             progress = 0
                         )
-                        bookDao.insertBook(newBook)
+                        viewModel.addBook(newBook)
                         snackbarHostState.showSnackbar("Book added: $title")
                         title = ""
                         author = ""

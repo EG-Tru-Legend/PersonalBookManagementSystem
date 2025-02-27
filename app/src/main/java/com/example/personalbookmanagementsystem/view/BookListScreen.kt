@@ -8,75 +8,39 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.personalbookmanagementsystem.model.Book
-import com.example.personalbookmanagementsystem.model.BookDao
+import com.example.personalbookmanagementsystem.viewmodel.BookViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun BookListScreen(
-    bookDao: BookDao,
+    viewModel: BookViewModel,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var isSorted by remember { mutableStateOf(false) }
-    var books by remember { mutableStateOf(listOf<Book>()) }
+    // Collect state from the ViewModel
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val selectedGenre by viewModel.selectedGenre.collectAsState()
+    val isSorted by viewModel.isSorted.collectAsState()
+    val filteredBooks by viewModel.filteredBooks.collectAsState()
+    val allBooks by viewModel.books.collectAsState()
+
     var editingBook by remember { mutableStateOf<Book?>(null) }
-
-    var selectedGenre by remember { mutableStateOf("All") }
-    var filterExpanded by remember { mutableStateOf(false) }
-
-    val genres = listOf(
-        "All",
-        "Academic Papers",
-        "Action Adventure",
-        "Comic",
-        "Fantasy",
-        "Historical",
-        "Horror",
-        "Manga",
-        "Mystery",
-        "Paranormal",
-        "Romance",
-        "Fiction",
-        "Science Fiction & Fantasy",
-        "Thriller"
-    )
+    var showGenreDialog by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        books = bookDao.getAllBooks()
-    }
-
-    val filteredBooks = remember {
-        derivedStateOf {
-            books.filter { book ->
-                (book.title.contains(searchQuery, ignoreCase = true) ||
-                        book.author.contains(searchQuery, ignoreCase = true)) &&
-                        (selectedGenre == "All" || book.genre.equals(selectedGenre, ignoreCase = true))
-            }
-        }
-    }
-
-    val sortedBooks = remember {
-        derivedStateOf {
-            if (isSorted) filteredBooks.value.sortedBy { it.title }
-            else filteredBooks.value
-        }
-    }
-
     Column(modifier = modifier.padding(16.dp)) {
+        // Search Field
         TextField(
             value = searchQuery,
-            onValueChange = { searchQuery = it },
+            onValueChange = { viewModel.setSearchQuery(it) },
             label = { Text("Search for a book") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        var showGenreDialog by remember { mutableStateOf(false) }
-
+        // Row with Filter button and Sort toggle
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -86,61 +50,70 @@ fun BookListScreen(
             Button(onClick = { showGenreDialog = true }) {
                 Text("Filter: $selectedGenre")
             }
-
-            if (showGenreDialog) {
-                AlertDialog(
-                    onDismissRequest = { showGenreDialog = false },
-                    confirmButton = {},
-                    title = { Text("Select Genre") },
-                    text = {
-                        Column {
-                            genres.forEach { genreOption ->
-                                TextButton(
-                                    onClick = {
-                                        selectedGenre = genreOption
-                                        showGenreDialog = false
-                                    }
-                                ) {
-                                    Text(genreOption)
-                                }
-                            }
-                        }
-                    }
-                )
-            }
-            Button(onClick = { isSorted = !isSorted }) {
+            Button(onClick = { viewModel.toggleSort() }) {
                 Text(if (isSorted) "Disable Sorting" else "Sort by Title")
             }
         }
+
+        if (showGenreDialog) {
+            // Genre selection dialog
+            AlertDialog(
+                onDismissRequest = { showGenreDialog = false },
+                confirmButton = {},
+                title = { Text("Select Genre") },
+                text = {
+                    Column {
+                        // Predefined genres (including "All")
+                        val genres = listOf(
+                            "All",
+                            "Academic Papers",
+                            "Action Adventure",
+                            "Comic",
+                            "Fantasy",
+                            "Historical",
+                            "Horror",
+                            "Manga",
+                            "Mystery",
+                            "Paranormal",
+                            "Romance",
+                            "Fiction",
+                            "Science Fiction & Fantasy",
+                            "Thriller"
+                        )
+                        genres.forEach { genreOption ->
+                            TextButton(
+                                onClick = {
+                                    viewModel.setSelectedGenre(genreOption)
+                                    showGenreDialog = false
+                                }
+                            ) {
+                                Text(genreOption)
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        val totalBooks = books.size
-        val completedBooks = books.count { it.progress == 100 }
-
+        // Display overall progress information
+        val totalBooks = allBooks.size
+        val completedBooks = allBooks.count { it.progress == 100 }
         Text(
             text = "Books Read: $completedBooks / $totalBooks",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(vertical = 8.dp)
         )
 
-
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(sortedBooks.value) { book ->
+            items(filteredBooks) { book ->
                 BookCard(
                     book = book,
                     onEdit = { editingBook = book },
-                    onDelete = {
-                        coroutineScope.launch {
-                            bookDao.deleteBook(book)
-                            books = bookDao.getAllBooks()
-                            snackbarHostState.showSnackbar("Deleted: ${book.title}")
-                        }
-                    },
+                    onDelete = { viewModel.deleteBook(book) },
                     onProgressChange = { newProgress ->
-                        coroutineScope.launch {
-                            bookDao.updateBook(book.copy(progress = newProgress))
-                            books = bookDao.getAllBooks()
-                        }
+                        viewModel.updateBook(book.copy(progress = newProgress))
                     }
                 )
                 HorizontalDivider()
@@ -153,10 +126,7 @@ fun BookListScreen(
             book = book,
             onDismiss = { editingBook = null },
             onSave = { updatedBook ->
-                coroutineScope.launch {
-                    bookDao.updateBook(updatedBook)
-                    books = bookDao.getAllBooks()
-                }
+                viewModel.updateBook(updatedBook)
                 editingBook = null
             }
         )
