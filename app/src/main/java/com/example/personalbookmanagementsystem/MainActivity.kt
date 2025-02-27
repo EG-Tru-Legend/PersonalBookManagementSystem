@@ -92,7 +92,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             PersonalBookManagementSystemTheme {
-                // Calling MainScreen so the function is used and the UI is rendered.
                 MainScreen(bookDao = bookDao)
             }
         }

@@ -5,7 +5,6 @@ import androidx.compose.material3.*
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.example.personalbookmanagementsystem.model.Book
 import com.example.personalbookmanagementsystem.model.BookDao
@@ -25,7 +24,6 @@ fun AddBookScreen(
     var genreExpanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    // Predefined genres sorted alphabetically
     val genres = listOf(
         "Academic Papers",
         "Action Adventure",
@@ -61,7 +59,6 @@ fun AddBookScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Genre Dropdown using Material 3's ExposedDropdownMenuBox
         ExposedDropdownMenuBox(
             expanded = genreExpanded,
             onExpandedChange = { genreExpanded = !genreExpanded }

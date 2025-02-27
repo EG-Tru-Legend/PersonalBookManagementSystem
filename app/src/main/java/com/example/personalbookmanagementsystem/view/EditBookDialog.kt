@@ -20,7 +20,6 @@ fun EditBookDialog(
     var progress by remember { mutableStateOf(book.progress.toString()) }
     var genreExpanded by remember { mutableStateOf(false) }
 
-    // Predefined genres sorted alphabetically
     val genres = listOf(
         "Academic Papers",
         "Action Adventure",
@@ -52,7 +51,6 @@ fun EditBookDialog(
                     onValueChange = { author = it },
                     label = { Text("Author") }
                 )
-                // Genre Dropdown for editing
                 ExposedDropdownMenuBox(
                     expanded = genreExpanded,
                     onExpandedChange = { genreExpanded = !genreExpanded }
