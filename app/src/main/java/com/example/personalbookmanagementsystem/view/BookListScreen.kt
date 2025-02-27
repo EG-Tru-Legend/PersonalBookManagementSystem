@@ -41,7 +41,7 @@ fun BookListScreen(
         "Mystery",
         "Paranormal",
         "Romance",
-        "Science Fiction",
+        "Fiction",
         "Science Fiction & Fantasy",
         "Thriller"
     )
@@ -81,44 +81,47 @@ fun BookListScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Genre Filter Dropdown Button
-        ExposedDropdownMenuBox(
-            expanded = filterExpanded,
-            onExpandedChange = { filterExpanded = !filterExpanded }
+        var showGenreDialog by remember { mutableStateOf(false) }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            TextField(
-                value = selectedGenre,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Filter by Genre") },
-                trailingIcon = { TrailingIcon(expanded = filterExpanded) },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
-            )
-            ExposedDropdownMenu(
-                expanded = filterExpanded,
-                onDismissRequest = { filterExpanded = false }
-            ) {
-                genres.forEach { genreOption ->
-                    DropdownMenuItem(
-                        text = { Text(text = genreOption) },
-                        onClick = {
-                            selectedGenre = genreOption
-                            filterExpanded = false
+            // Filter Button
+            Button(onClick = { showGenreDialog = true }) {
+                Text("Filter: $selectedGenre")
+            }
+
+            if (showGenreDialog) {
+                AlertDialog(
+                    onDismissRequest = { showGenreDialog = false },
+                    confirmButton = {},
+                    title = { Text("Select Genre") },
+                    text = {
+                        Column {
+                            genres.forEach { genreOption ->
+                                TextButton(
+                                    onClick = {
+                                        selectedGenre = genreOption
+                                        showGenreDialog = false
+                                    }
+                                ) {
+                                    Text(genreOption)
+                                }
+                            }
                         }
-                    )
-                }
+                    }
+                )
+            }
+
+            // Sort Button
+            Button(onClick = { isSorted = !isSorted }) {
+                Text(if (isSorted) "Disable Sorting" else "Sort by Title")
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Sorting Button
-        Button(
-            onClick = { isSorted = !isSorted },
-            modifier = Modifier.padding(vertical = 8.dp)
-        ) {
-            Text(if (isSorted) "Disable Sorting" else "Sort by Title")
-        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

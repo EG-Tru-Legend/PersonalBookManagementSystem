@@ -10,6 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.personalbookmanagementsystem.model.Book
 
+import java.text.SimpleDateFormat
+import java.util.*
+
 @Composable
 fun BookCard(
     book: Book,
@@ -29,11 +32,16 @@ fun BookCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
+                    // Format the dateAdded string to a user-friendly date
+                    val formattedDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(book.dateAdded.toLong()))
+
                     // Title on the first line
                     Text(text = book.title, style = MaterialTheme.typography.titleLarge)
                     // Author on the next line
                     Text(text = book.author, style = MaterialTheme.typography.bodyMedium)
                     Text(text = "Genre: ${book.genre}", style = MaterialTheme.typography.bodySmall)
+                    // Display the formatted date
+                    Text(text = "Added: $formattedDate", style = MaterialTheme.typography.bodySmall)
                 }
                 Row {
                     IconButton(onClick = onEdit) {
@@ -56,12 +64,8 @@ fun BookCard(
             Text(text = "Progress: ${sliderValue.toInt()}%")
             Slider(
                 value = sliderValue,
-                onValueChange = { newValue ->
-                    sliderValue = newValue
-                },
-                onValueChangeFinished = {
-                    onProgressChange(sliderValue.toInt())
-                },
+                onValueChange = { newValue -> sliderValue = newValue },
+                onValueChangeFinished = { onProgressChange(sliderValue.toInt()) },
                 valueRange = 0f..100f,
                 modifier = Modifier.fillMaxWidth()
             )

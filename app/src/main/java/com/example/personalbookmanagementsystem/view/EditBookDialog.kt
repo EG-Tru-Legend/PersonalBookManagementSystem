@@ -32,7 +32,7 @@ fun EditBookDialog(
         "Mystery",
         "Paranormal",
         "Romance",
-        "Science Fiction",
+        "Fiction",
         "Science Fiction & Fantasy",
         "Thriller"
     )
