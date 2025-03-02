@@ -23,11 +23,13 @@ fun BookCard(
     onProgressChange: (Int) -> Unit
 ) {
     var pressed by remember { mutableStateOf(false) }
-    var currentPage by remember { mutableStateOf(book.currentPage) }
+    // Use rememberUpdatedState to respond to book changes from outside
+    val currentPage = rememberUpdatedState(book.currentPage)
+    var sliderPosition by remember(book.currentPage) { mutableStateOf(book.currentPage.toFloat()) }
 
     // Calculate progress percentage when totalPages > 0
     val progressPercentage = if (book.totalPages > 0) {
-        ((currentPage.toFloat() / book.totalPages) * 100).toInt().coerceIn(0, 100)
+        ((currentPage.value.toFloat() / book.totalPages) * 100).toInt().coerceIn(0, 100)
     } else {
         book.progress // Use stored progress if totalPages is not set
     }
@@ -101,21 +103,26 @@ fun BookCard(
                         )
 
                         Text(
-                            text = "$currentPage / ${book.totalPages}",
+                            text = "${currentPage.value} / ${book.totalPages}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = progressColor
                         )
                     }
 
                     Slider(
-                        value = currentPage.toFloat(),
+                        value = sliderPosition,
                         onValueChange = {
-                            currentPage = it.toInt()
+                            sliderPosition = it
                         },
                         onValueChangeFinished = {
-                            // Calculate percentage and update
-                            val newProgress = ((currentPage.toFloat() / book.totalPages) * 100).toInt().coerceIn(0, 100)
-                            onProgressChange(newProgress)
+                            val newPosition = sliderPosition.toInt()
+                            // Only update if position has actually changed
+                            if (newPosition != currentPage.value) {
+                                // Calculate percentage and update
+                                val newProgress = ((sliderPosition / book.totalPages) * 100).toInt().coerceIn(0, 100)
+                                // Use the updateBookCurrentPage to ensure both current page and progress are updated
+                                onProgressChange(newProgress)
+                            }
                         },
                         valueRange = 0f..book.totalPages.toFloat(),
                         steps = if (book.totalPages > 100) 0 else book.totalPages - 1,
@@ -129,7 +136,7 @@ fun BookCard(
                 }
             } else {
                 // Standard percentage slider for books without page count
-                var sliderValue by remember { mutableStateOf(book.progress.toFloat()) }
+                var sliderValue by remember(book.progress) { mutableStateOf(book.progress.toFloat()) }
 
                 Slider(
                     value = sliderValue,

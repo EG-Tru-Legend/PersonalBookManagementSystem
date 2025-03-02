@@ -107,13 +107,13 @@ fun BookListScreen(
         )
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(filteredBooks) { book ->
+            items(filteredBooks, key = { it.id }) { book ->
                 BookCard(
                     book = book,
                     onEdit = { editingBook = book },
                     onDelete = { viewModel.deleteBook(book) },
                     onProgressChange = { newProgress ->
-                        viewModel.updateBook(book.copy(progress = newProgress))
+                        viewModel.updateBookProgress(book, newProgress)
                     }
                 )
                 HorizontalDivider()
@@ -128,6 +128,12 @@ fun BookListScreen(
             onSave = { updatedBook ->
                 viewModel.updateBook(updatedBook)
                 editingBook = null
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Book updated successfully",
+                        duration = SnackbarDuration.Short
+                    )
+                }
             }
         )
     }
