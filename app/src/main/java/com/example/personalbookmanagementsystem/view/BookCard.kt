@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.personalbookmanagementsystem.model.Book
@@ -22,6 +23,14 @@ fun BookCard(
     onProgressChange: (Int) -> Unit
 ) {
     var pressed by remember { mutableStateOf(false) }
+    var currentPage by remember { mutableStateOf(book.currentPage) }
+
+    // Calculate progress percentage when totalPages > 0
+    val progressPercentage = if (book.totalPages > 0) {
+        ((currentPage.toFloat() / book.totalPages) * 100).toInt().coerceIn(0, 100)
+    } else {
+        book.progress // Use stored progress if totalPages is not set
+    }
 
     fun getProgressColor(progress: Int): Color {
         return when {
@@ -30,7 +39,7 @@ fun BookCard(
             else -> Color(0xFF76C7A0)
         }
     }
-    val progressColor = getProgressColor(book.progress)
+    val progressColor = getProgressColor(progressPercentage)
 
     Card(
         modifier = Modifier
@@ -50,6 +59,9 @@ fun BookCard(
                     Text(text = book.author, style = MaterialTheme.typography.bodyMedium)
                     Text(text = "Genre: ${book.genre}", style = MaterialTheme.typography.bodySmall)
                     Text(text = "Added: $formattedDate", style = MaterialTheme.typography.bodySmall)
+                    if (book.totalPages > 0) {
+                        Text(text = "Total Pages: ${book.totalPages}", style = MaterialTheme.typography.bodySmall)
+                    }
                 }
                 Row {
                     IconButton(onClick = onEdit) {
@@ -66,25 +78,72 @@ fun BookCard(
                     }
                 }
             }
+
             Spacer(modifier = Modifier.height(8.dp))
-            var sliderValue by remember { mutableStateOf(book.progress.toFloat()) }
+
+            // Show progress based on percentage
             Text(
-                text = "Progress: ${sliderValue.toInt()}%",
+                text = "Progress: ${progressPercentage}%",
                 color = progressColor
             )
-            Slider(
-                value = sliderValue,
-                onValueChange = { newValue -> sliderValue = newValue },
-                onValueChangeFinished = { onProgressChange(sliderValue.toInt()) },
-                valueRange = 0f..100f,
-                modifier = Modifier.fillMaxWidth(),
-                colors = SliderDefaults.colors(
-                    thumbColor = progressColor,
-                    activeTrackColor = progressColor.copy(alpha = 0.6f),
-                    inactiveTrackColor = progressColor.copy(alpha = 0.2f)
+
+            if (book.totalPages > 0) {
+                // Page counter with slider
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Pages read:",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Text(
+                            text = "$currentPage / ${book.totalPages}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = progressColor
+                        )
+                    }
+
+                    Slider(
+                        value = currentPage.toFloat(),
+                        onValueChange = {
+                            currentPage = it.toInt()
+                        },
+                        onValueChangeFinished = {
+                            // Calculate percentage and update
+                            val newProgress = ((currentPage.toFloat() / book.totalPages) * 100).toInt().coerceIn(0, 100)
+                            onProgressChange(newProgress)
+                        },
+                        valueRange = 0f..book.totalPages.toFloat(),
+                        steps = if (book.totalPages > 100) 0 else book.totalPages - 1,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = SliderDefaults.colors(
+                            thumbColor = progressColor,
+                            activeTrackColor = progressColor.copy(alpha = 0.6f),
+                            inactiveTrackColor = progressColor.copy(alpha = 0.2f)
+                        )
+                    )
+                }
+            } else {
+                // Standard percentage slider for books without page count
+                var sliderValue by remember { mutableStateOf(book.progress.toFloat()) }
+
+                Slider(
+                    value = sliderValue,
+                    onValueChange = { newValue -> sliderValue = newValue },
+                    onValueChangeFinished = { onProgressChange(sliderValue.toInt()) },
+                    valueRange = 0f..100f,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = SliderDefaults.colors(
+                        thumbColor = progressColor,
+                        activeTrackColor = progressColor.copy(alpha = 0.6f),
+                        inactiveTrackColor = progressColor.copy(alpha = 0.2f)
+                    )
                 )
-            )
+            }
         }
     }
 }
-

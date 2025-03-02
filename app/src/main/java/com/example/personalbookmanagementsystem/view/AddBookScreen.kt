@@ -21,6 +21,7 @@ fun AddBookScreen(
     var title by remember { mutableStateOf("") }
     var author by remember { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf("") }
+    var totalPages by remember { mutableStateOf("") }
     var genreExpanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
@@ -92,6 +93,15 @@ fun AddBookScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        TextField(
+            value = totalPages,
+            onValueChange = { totalPages = it.filter { c -> c.isDigit() } },
+            label = { Text("Total Pages") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         Button(
             onClick = {
                 coroutineScope.launch {
@@ -102,13 +112,16 @@ fun AddBookScreen(
                             author = author,
                             genre = selectedGenre,
                             dateAdded = System.currentTimeMillis().toString(),
-                            progress = 0
+                            progress = 0,
+                            totalPages = totalPages.toIntOrNull() ?: 0,
+                            currentPage = 0
                         )
                         viewModel.addBook(newBook)
                         snackbarHostState.showSnackbar("Book added: $title")
                         title = ""
                         author = ""
                         selectedGenre = ""
+                        totalPages = ""
                         onBookAdded()
                     } else {
                         snackbarHostState.showSnackbar("Title and Author are required.")

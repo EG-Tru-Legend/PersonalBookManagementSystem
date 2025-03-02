@@ -54,7 +54,53 @@ class BookViewModel(private val bookDao: BookDao) : ViewModel() {
 
     fun updateBook(book: Book) {
         viewModelScope.launch {
-            bookDao.updateBook(book)
+            // Calculate currentPage based on progress percentage if not set
+            val updatedBook = if (book.totalPages > 0 && book.currentPage <= 0) {
+                val calculatedCurrentPage = ((book.progress / 100f) * book.totalPages).toInt().coerceIn(0, book.totalPages)
+                book.copy(currentPage = calculatedCurrentPage)
+            } else {
+                book
+            }
+
+            bookDao.updateBook(updatedBook)
+            refreshBooks()
+        }
+    }
+
+    fun updateBookProgress(book: Book, newProgress: Int) {
+        viewModelScope.launch {
+            // Calculate currentPage based on progress percentage
+            val currentPage = if (book.totalPages > 0) {
+                ((newProgress / 100f) * book.totalPages).toInt().coerceIn(0, book.totalPages)
+            } else {
+                0
+            }
+
+            val updatedBook = book.copy(
+                progress = newProgress,
+                currentPage = currentPage
+            )
+
+            bookDao.updateBook(updatedBook)
+            refreshBooks()
+        }
+    }
+
+    fun updateBookCurrentPage(book: Book, currentPage: Int) {
+        viewModelScope.launch {
+            // Calculate progress percentage based on currentPage
+            val progress = if (book.totalPages > 0) {
+                ((currentPage.toFloat() / book.totalPages) * 100).toInt().coerceIn(0, 100)
+            } else {
+                book.progress
+            }
+
+            val updatedBook = book.copy(
+                progress = progress,
+                currentPage = currentPage
+            )
+
+            bookDao.updateBook(updatedBook)
             refreshBooks()
         }
     }
