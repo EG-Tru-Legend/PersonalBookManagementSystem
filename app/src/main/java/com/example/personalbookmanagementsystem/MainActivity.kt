@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
                     drawerContent = {
                         ModalDrawerSheet {
                             NavigationDrawerItem(
-                                label = { Text("Book List") },
+                                label = { Text("Library") },
                                 selected = currentScreen == Screen.BOOK_LIST,
                                 onClick = {
                                     currentScreen = Screen.BOOK_LIST

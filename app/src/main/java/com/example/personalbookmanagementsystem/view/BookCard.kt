@@ -44,6 +44,7 @@ fun BookCard(
     val progressColor = getProgressColor(progressPercentage)
 
     Card(
+        shape = MaterialTheme.shapes.medium,
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
