@@ -1,7 +1,10 @@
 package com.example.personalbookmanagementsystem.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.personalbookmanagementsystem.model.Book
 import com.example.personalbookmanagementsystem.model.BookDao
 import kotlinx.coroutines.flow.*
@@ -122,5 +125,16 @@ class BookViewModel(private val bookDao: BookDao) : ViewModel() {
 
     fun toggleSort() {
         _isSorted.value = !_isSorted.value
+    }
+
+    companion object {
+        // Factory provider for the ViewModel
+        val Factory: (BookDao) -> ViewModelProvider.Factory = { bookDao ->
+            viewModelFactory {
+                initializer {
+                    BookViewModel(bookDao)
+                }
+            }
+        }
     }
 }

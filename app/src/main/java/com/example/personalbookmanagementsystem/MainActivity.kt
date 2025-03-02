@@ -21,7 +21,6 @@ import com.example.personalbookmanagementsystem.ui.AddBookScreen
 import com.example.personalbookmanagementsystem.ui.BookListScreen
 import com.example.personalbookmanagementsystem.ui.theme.PersonalBookManagementSystemTheme
 import com.example.personalbookmanagementsystem.viewmodel.BookViewModel
-import com.example.personalbookmanagementsystem.viewmodel.BookViewModelFactory
 import kotlinx.coroutines.launch
 
 enum class Screen {
@@ -40,7 +39,7 @@ class MainActivity : ComponentActivity() {
             PersonalBookManagementSystemTheme {
                 val snackbarHostState = remember { SnackbarHostState() }
                 val bookViewModel: BookViewModel = viewModel(
-                    factory = BookViewModelFactory(bookDao)
+                    factory = BookViewModel.Factory(bookDao)
                 )
                 var currentScreen by remember { mutableStateOf(Screen.BOOK_LIST) }
                 val scope = rememberCoroutineScope()
