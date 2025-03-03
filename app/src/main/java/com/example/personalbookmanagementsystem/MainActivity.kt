@@ -36,7 +36,6 @@ class MainActivity : ComponentActivity() {
                 )
                 var currentScreen by remember { mutableStateOf<Screen>(Screen.BookList) }
 
-                // Create drawer state here so it can be shared
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
 

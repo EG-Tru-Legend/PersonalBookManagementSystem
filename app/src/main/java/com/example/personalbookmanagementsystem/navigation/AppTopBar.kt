@@ -21,7 +21,7 @@ fun AppTopBar(
         title = {
             Text(
                 when(currentScreen) {
-                    is Screen.BookList -> "Personal Book Management"
+                    is Screen.BookList -> "My Book Library"
                     is Screen.AddBook -> "Add New Book"
                     is Screen.BookDetail -> "Book Details"
                 }

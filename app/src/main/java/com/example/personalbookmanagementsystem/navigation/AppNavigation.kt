@@ -11,7 +11,6 @@ import com.example.personalbookmanagementsystem.ui.BookListScreen
 import com.example.personalbookmanagementsystem.viewmodel.BookViewModel
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(
     bookViewModel: BookViewModel,
@@ -56,7 +55,6 @@ fun AppNavigation(
                     onScreenChange(Screen.BookList)
                 },
                 onEdit = { book ->
-                    // Implement edit functionality
                 },
                 onDelete = { book ->
                     bookViewModel.deleteBook(book)
@@ -69,7 +67,6 @@ fun AppNavigation(
                     }
                 },
                 onEmail = { book ->
-                    // Implement email functionality
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = "Opening sharing options...",
