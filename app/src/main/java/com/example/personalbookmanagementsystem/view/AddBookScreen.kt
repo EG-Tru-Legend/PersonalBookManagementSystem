@@ -25,7 +25,6 @@ fun AddBookScreen(
     var genreExpanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    // Predefined genres sorted alphabetically
     val genres = listOf(
         "Academic Papers",
         "Action Adventure",

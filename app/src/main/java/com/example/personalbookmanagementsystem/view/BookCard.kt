@@ -25,15 +25,13 @@ fun BookCard(
     onProgressChange: (Int) -> Unit
 ) {
     var pressed by remember { mutableStateOf(false) }
-    // Use rememberUpdatedState to respond to book changes from outside
     val currentPage = rememberUpdatedState(book.currentPage)
     var sliderPosition by remember(book.currentPage) { mutableStateOf(book.currentPage.toFloat()) }
 
-    // Calculate progress percentage when totalPages > 0
     val progressPercentage = if (book.totalPages > 0) {
         ((currentPage.value.toFloat() / book.totalPages) * 100).toInt().coerceIn(0, 100)
     } else {
-        book.progress // Use stored progress if totalPages is not set
+        book.progress
     }
 
     fun getProgressColor(progress: Int): Color {
@@ -91,14 +89,12 @@ fun BookCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Show progress based on percentage
             Text(
                 text = "Progress: ${progressPercentage}%",
                 color = progressColor
             )
 
             if (book.totalPages > 0) {
-                // Page counter with slider
                 Column {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -124,11 +120,8 @@ fun BookCard(
                         },
                         onValueChangeFinished = {
                             val newPosition = sliderPosition.toInt()
-                            // Only update if position has actually changed
                             if (newPosition != currentPage.value) {
-                                // Calculate percentage and update
                                 val newProgress = ((sliderPosition / book.totalPages) * 100).toInt().coerceIn(0, 100)
-                                // Use the updateBookCurrentPage to ensure both current page and progress are updated
                                 onProgressChange(newProgress)
                             }
                         },
@@ -143,7 +136,6 @@ fun BookCard(
                     )
                 }
             } else {
-                // Standard percentage slider for books without page count
                 var sliderValue by remember(book.progress) { mutableStateOf(book.progress.toFloat()) }
 
                 Slider(

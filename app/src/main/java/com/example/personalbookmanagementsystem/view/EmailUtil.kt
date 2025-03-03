@@ -8,10 +8,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object EmailUtils {
-
-    /**
-     * Send an email with details about a specific book
-     */
     fun sendBookDetailsEmail(context: Context, recipient: String, book: Book) {
         val subject = "Book Details: ${book.title}"
 
@@ -41,9 +37,6 @@ object EmailUtils {
         sendEmail(context, recipient, subject, body)
     }
 
-    /**
-     * Send an email with a summary of multiple books
-     */
     fun sendBookListEmail(context: Context, recipient: String, books: List<Book>) {
         val subject = "My Book List Summary"
 
@@ -77,9 +70,6 @@ object EmailUtils {
         sendEmail(context, recipient, subject, bodyBuilder.toString())
     }
 
-    /**
-     * Generic method to send an email using Android intent system
-     */
     private fun sendEmail(context: Context, recipient: String, subject: String, body: String) {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "message/rfc822"
@@ -91,7 +81,6 @@ object EmailUtils {
         try {
             startActivity(context, Intent.createChooser(intent, "Send email using..."), null)
         } catch (e: Exception) {
-            // Handle exception (could show a Toast or Snackbar here)
             e.printStackTrace()
         }
     }

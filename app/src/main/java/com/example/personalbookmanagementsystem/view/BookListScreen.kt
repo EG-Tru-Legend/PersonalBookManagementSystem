@@ -7,7 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -22,7 +21,6 @@ fun BookListScreen(
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
-    // Collect state from the ViewModel
     val searchQuery by viewModel.searchQuery.collectAsState()
     val selectedGenre by viewModel.selectedGenre.collectAsState()
     val isSorted by viewModel.isSorted.collectAsState()
@@ -38,7 +36,6 @@ fun BookListScreen(
     val coroutineScope = rememberCoroutineScope()
 
     Column(modifier = modifier.padding(16.dp)) {
-        // Search Field
         TextField(
             value = searchQuery,
             onValueChange = { viewModel.setSearchQuery(it) },
@@ -48,7 +45,6 @@ fun BookListScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Row with Filter button, Sort toggle, and Email All button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -77,14 +73,12 @@ fun BookListScreen(
         }
 
         if (showGenreDialog) {
-            // Genre selection dialog
             AlertDialog(
                 onDismissRequest = { showGenreDialog = false },
                 confirmButton = {},
                 title = { Text("Select Genre") },
                 text = {
                     Column {
-                        // Predefined genres (including "All")
                         val genres = listOf(
                             "All",
                             "Academic Papers",
@@ -118,7 +112,6 @@ fun BookListScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Display overall progress information
         val totalBooks = allBooks.size
         val completedBooks = allBooks.count { it.progress == 100 }
         Text(
@@ -143,7 +136,6 @@ fun BookListScreen(
         }
     }
 
-    // Email Dialog for individual book or full list
     if (showEmailDialog || emailingBook != null) {
         val isFullList = emailingBook == null
         var emailAddress by remember { mutableStateOf("") }
@@ -204,7 +196,6 @@ fun BookListScreen(
         )
     }
 
-    // Edit Book Dialog
     editingBook?.let { book ->
         EditBookDialog(
             book = book,

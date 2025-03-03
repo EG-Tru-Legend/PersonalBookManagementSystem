@@ -39,7 +39,6 @@ fun EditBookDialog(
         "Thriller"
     )
 
-    // Calculate progress based on pages when available
     val calculatedProgress = if (totalPages.toIntOrNull() ?: 0 > 0 && currentPage.toIntOrNull() ?: 0 > 0) {
         ((currentPage.toIntOrNull() ?: 0).toFloat() / (totalPages.toIntOrNull() ?: 1) * 100).toInt().coerceIn(0, 100)
     } else {
@@ -105,7 +104,6 @@ fun EditBookDialog(
                     value = totalPages,
                     onValueChange = {
                         totalPages = it.filter { c -> c.isDigit() }
-                        // Ensure currentPage doesn't exceed totalPages
                         val totalPagesInt = totalPages.toIntOrNull() ?: 0
                         val currentPageInt = currentPage.toIntOrNull() ?: 0
                         if (currentPageInt > totalPagesInt && totalPagesInt > 0) {
@@ -163,7 +161,6 @@ fun EditBookDialog(
                     val totalPagesInt = totalPages.toIntOrNull() ?: 0
                     val currentPageInt = currentPage.toIntOrNull() ?: 0
 
-                    // Calculate final progress based on pages or direct percentage
                     val finalProgress = if (totalPagesInt > 0) {
                         ((currentPageInt.toFloat() / totalPagesInt) * 100).toInt().coerceIn(0, 100)
                     } else {

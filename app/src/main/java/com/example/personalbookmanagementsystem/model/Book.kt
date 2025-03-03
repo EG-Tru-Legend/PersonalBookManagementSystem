@@ -11,6 +11,6 @@ data class Book(
     val genre: String?,
     val dateAdded: String,
     val progress: Int,
-    val totalPages: Int = 0,  // Total pages in the book
-    val currentPage: Int = 0   // Current page the user has read
+    val totalPages: Int = 0,
+    val currentPage: Int = 0
 )
