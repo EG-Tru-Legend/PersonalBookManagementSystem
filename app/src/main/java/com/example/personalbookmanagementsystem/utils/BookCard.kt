@@ -1,4 +1,4 @@
-package com.example.personalbookmanagementsystem.ui
+package com.example.personalbookmanagementsystem.utils
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
