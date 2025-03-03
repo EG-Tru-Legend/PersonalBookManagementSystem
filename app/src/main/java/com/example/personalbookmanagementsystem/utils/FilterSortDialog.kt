@@ -67,7 +67,7 @@ fun FilterSortDialog(
                     Divider()
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Genre filter section
+                    // Genre filter
                     Text(
                         text = "Filter by genre",
                         style = MaterialTheme.typography.titleMedium

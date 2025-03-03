@@ -30,12 +30,13 @@ fun BookDetailScreen(
     val currentPage = rememberUpdatedState(book.currentPage)
     var sliderPosition by remember(book.currentPage) { mutableStateOf(book.currentPage.toFloat()) }
 
+    // Calculation for reading progress percentage
     val progressPercentage = if (book.totalPages > 0) {
         ((currentPage.value.toFloat() / book.totalPages) * 100).toInt().coerceIn(0, 100)
     } else {
         book.progress
     }
-
+    // Reactive color based on the progress percentage
     fun getProgressColor(progress: Int): Color {
         return when {
             progress < 30 -> Color(0xFFF28D8D)
@@ -52,11 +53,13 @@ fun BookDetailScreen(
             TopAppBar(
                 title = { Text("Book Details") },
                 navigationIcon = {
+                    // Back button to navigate back
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
+                    // Action buttons: Email, Edit, and Delete
                     IconButton(onClick = { onEmail(book) }) {
                         Icon(Icons.Default.Email, contentDescription = "Email Book")
                     }
@@ -70,6 +73,7 @@ fun BookDetailScreen(
             )
         }
     ) { paddingValues ->
+        // Book Details
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -119,6 +123,7 @@ fun BookDetailScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            //Linear progress indicator
             LinearProgressIndicator(
                 progress = progressPercentage / 100f,
                 modifier = Modifier
@@ -151,6 +156,7 @@ fun BookDetailScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Slider to update current page progress
                 Slider(
                     value = sliderPosition,
                     onValueChange = { sliderPosition = it },
@@ -220,6 +226,7 @@ private fun DetailRow(label: String, value: String) {
     }
 }
 
+// Back Navigation
 @Composable
 fun BackHandler(onBack: () -> Unit) {
     androidx.activity.compose.BackHandler {

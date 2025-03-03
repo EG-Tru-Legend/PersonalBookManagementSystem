@@ -26,6 +26,7 @@ fun BookListScreen(
     onNavigateToBookDetail: (Book) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Collecting state from ViewModel for search query, selected genre, sorted status, and books
     val searchQuery by viewModel.searchQuery.collectAsState()
     val selectedGenre by viewModel.selectedGenre.collectAsState()
     val isSorted by viewModel.isSorted.collectAsState()
@@ -39,6 +40,7 @@ fun BookListScreen(
     val coroutineScope = rememberCoroutineScope()
 
     Column(modifier = modifier.padding(16.dp)) {
+        // Search bar for searching books
         TextField(
             value = searchQuery,
             onValueChange = { viewModel.setSearchQuery(it) },
@@ -47,13 +49,14 @@ fun BookListScreen(
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-
+        // Row containing Filter & Sort and Share button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Filter & Sort button
             Button(
                 onClick = { showFilterSortDialog = true }
             ) {
@@ -64,7 +67,7 @@ fun BookListScreen(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Filter & Sort")
             }
-
+            // Share button
             Button(
                 onClick = {
                     EmailUtils.shareBookList(context, filteredBooks)
@@ -87,7 +90,7 @@ fun BookListScreen(
                 Text("Share List")
             }
         }
-
+        // Display active filters
         if (selectedGenre != "All" || isSorted) {
             Column(
                 modifier = Modifier
@@ -105,7 +108,7 @@ fun BookListScreen(
                     AssistChip(
                         onClick = { },
                         label = { Text("Genre: $selectedGenre") },
-                        modifier = Modifier.padding(bottom = 4.dp) // Adds spacing between filters
+                        modifier = Modifier.padding(bottom = 4.dp)
                     )
                 }
 
@@ -118,7 +121,7 @@ fun BookListScreen(
             }
         }
 
-
+        // Filter & Sort dialog
         FilterSortDialog(
             showDialog = showFilterSortDialog,
             currentGenre = selectedGenre,
@@ -143,7 +146,7 @@ fun BookListScreen(
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(vertical = 8.dp)
         )
-
+        // List of books
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(filteredBooks, key = { it.id }) { book ->
                 BookCard(
@@ -168,7 +171,7 @@ fun BookListScreen(
             }
         }
     }
-
+    // Display EditBookDialog
     editingBook?.let { book ->
         EditBookDialog(
             book = book,

@@ -26,6 +26,7 @@ fun AppNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
+                // Naviagtion for BookListScreen
                 NavigationDrawerItem(
                     label = { Text("Library") },
                     selected = currentScreen is Screen.BookList,
@@ -35,6 +36,7 @@ fun AppNavigationDrawer(
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
+                // Navigation for AddBookScreen
                 NavigationDrawerItem(
                     label = { Text("Add Book") },
                     selected = currentScreen is Screen.AddBook,

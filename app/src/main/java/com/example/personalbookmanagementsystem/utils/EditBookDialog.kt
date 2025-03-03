@@ -45,6 +45,7 @@ fun EditBookDialog(
         progress.toIntOrNull() ?: 0
     }
 
+    // Displays the form for editing the book
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Edit Book") },
@@ -156,6 +157,7 @@ fun EditBookDialog(
             }
         },
         confirmButton = {
+            // Save button
             Button(onClick = {
                 if (title.isNotEmpty() && author.isNotEmpty()) {
                     val totalPagesInt = totalPages.toIntOrNull() ?: 0

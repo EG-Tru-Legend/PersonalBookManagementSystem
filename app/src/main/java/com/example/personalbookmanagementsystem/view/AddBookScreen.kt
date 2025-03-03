@@ -18,6 +18,7 @@ fun AddBookScreen(
     modifier: Modifier = Modifier,
     onBookAdded: () -> Unit = {}
 ) {
+    // Variables for
     var title by remember { mutableStateOf("") }
     var author by remember { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf("") }
@@ -40,7 +41,7 @@ fun AddBookScreen(
         "Science Fiction & Fantasy",
         "Thriller"
     )
-
+    // Input fields for adding a new book
     Column(modifier = modifier.padding(16.dp)) {
         TextField(
             value = title,
@@ -101,9 +102,11 @@ fun AddBookScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Button to submit the form and add the book
         Button(
             onClick = {
                 coroutineScope.launch {
+                    // Check if the title and author fields are filled
                     if (title.isNotEmpty() && author.isNotEmpty()) {
                         val newBook = Book(
                             id = 0,

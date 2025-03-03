@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object EmailUtils {
+    // Function to share the details of a single book via email
     fun shareBookDetails(context: Context, book: Book) {
         val formattedDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
             .format(Date(book.dateAdded.toLong()))
@@ -18,6 +19,7 @@ object EmailUtils {
             book.progress
         }
 
+        // Subject and body of the email
         val subject = "Book Details: ${book.title}"
         val body = """
             |Book Details:
@@ -36,6 +38,7 @@ object EmailUtils {
         shareText(context, subject, body)
     }
 
+    // Function to share a summary of all books via email
     fun shareBookList(context: Context, books: List<Book>) {
         val totalBooks = books.size
         val completedBooks = books.count { it.progress == 100 }
@@ -68,6 +71,7 @@ object EmailUtils {
         shareText(context, subject, bodyBuilder.toString())
     }
 
+    // Helper function to send the text content via email
     private fun shareText(context: Context, subject: String, text: String) {
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"

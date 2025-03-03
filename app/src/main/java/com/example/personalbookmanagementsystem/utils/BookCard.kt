@@ -35,6 +35,7 @@ fun BookCard(
         book.progress
     }
 
+    // Function to determine the progress color based on the percentage
     fun getProgressColor(progress: Int): Color {
         return when {
             progress < 30 -> Color(0xFFF28D8D)
@@ -44,6 +45,7 @@ fun BookCard(
     }
     val progressColor = getProgressColor(progressPercentage)
 
+    // Card displaying the book's information
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -66,6 +68,7 @@ fun BookCard(
                         Text(text = "Total Pages: ${book.totalPages}", style = MaterialTheme.typography.bodySmall)
                     }
                 }
+                // Icons for share, edit, & delete
                 Row {
                     IconButton(onClick = onEmail) {
                         Icon(
@@ -95,6 +98,7 @@ fun BookCard(
                 color = progressColor
             )
 
+            // If the book has pages, display a progress slider & page details
             if (book.totalPages > 0) {
                 Column {
                     Row(
