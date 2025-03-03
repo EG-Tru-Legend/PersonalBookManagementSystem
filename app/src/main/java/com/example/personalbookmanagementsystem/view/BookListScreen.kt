@@ -3,11 +3,16 @@ package com.example.personalbookmanagementsystem.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.personalbookmanagementsystem.model.Book
+import com.example.personalbookmanagementsystem.utils.EmailUtils
 import com.example.personalbookmanagementsystem.viewmodel.BookViewModel
 import kotlinx.coroutines.launch
 
@@ -24,8 +29,11 @@ fun BookListScreen(
     val filteredBooks by viewModel.filteredBooks.collectAsState()
     val allBooks by viewModel.books.collectAsState()
 
+    val context = LocalContext.current
     var editingBook by remember { mutableStateOf<Book?>(null) }
     var showGenreDialog by remember { mutableStateOf(false) }
+    var showEmailDialog by remember { mutableStateOf(false) }
+    var emailingBook by remember { mutableStateOf<Book?>(null) }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -40,7 +48,7 @@ fun BookListScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Row with Filter button and Sort toggle
+        // Row with Filter button, Sort toggle, and Email All button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -52,6 +60,19 @@ fun BookListScreen(
             }
             Button(onClick = { viewModel.toggleSort() }) {
                 Text(if (isSorted) "Disable Sorting" else "Sort by Title")
+            }
+            Button(
+                onClick = { showEmailDialog = true },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = "Email Book List"
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Email List")
             }
         }
 
@@ -112,6 +133,7 @@ fun BookListScreen(
                     book = book,
                     onEdit = { editingBook = book },
                     onDelete = { viewModel.deleteBook(book) },
+                    onEmail = { emailingBook = book },
                     onProgressChange = { newProgress ->
                         viewModel.updateBookProgress(book, newProgress)
                     }
@@ -121,6 +143,68 @@ fun BookListScreen(
         }
     }
 
+    // Email Dialog for individual book or full list
+    if (showEmailDialog || emailingBook != null) {
+        val isFullList = emailingBook == null
+        var emailAddress by remember { mutableStateOf("") }
+
+        AlertDialog(
+            onDismissRequest = {
+                showEmailDialog = false
+                emailingBook = null
+            },
+            title = { Text(if (isFullList) "Email Book List" else "Email Book Details") },
+            text = {
+                Column {
+                    Text("Enter recipient email address:")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextField(
+                        value = emailAddress,
+                        onValueChange = { emailAddress = it },
+                        placeholder = { Text("email@example.com") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (emailAddress.isNotEmpty()) {
+                            if (isFullList) {
+                                EmailUtils.sendBookListEmail(context, emailAddress, filteredBooks)
+                            } else {
+                                emailingBook?.let {
+                                    EmailUtils.sendBookDetailsEmail(context, emailAddress, it)
+                                }
+                            }
+                            showEmailDialog = false
+                            emailingBook = null
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Email sent successfully",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                        }
+                    }
+                ) {
+                    Text("Send")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showEmailDialog = false
+                        emailingBook = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Edit Book Dialog
     editingBook?.let { book ->
         EditBookDialog(
             book = book,

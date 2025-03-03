@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +21,7 @@ fun BookCard(
     book: Book,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onEmail: () -> Unit,
     onProgressChange: (Int) -> Unit
 ) {
     var pressed by remember { mutableStateOf(false) }
@@ -44,7 +46,6 @@ fun BookCard(
     val progressColor = getProgressColor(progressPercentage)
 
     Card(
-        shape = MaterialTheme.shapes.medium,
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
@@ -67,6 +68,12 @@ fun BookCard(
                     }
                 }
                 Row {
+                    IconButton(onClick = onEmail) {
+                        Icon(
+                            imageVector = Icons.Default.Email,
+                            contentDescription = "Email Book Info"
+                        )
+                    }
                     IconButton(onClick = onEdit) {
                         Icon(
                             imageVector = Icons.Default.Edit,
