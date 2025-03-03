@@ -32,106 +32,147 @@ fun BookListScreen(
     var showGenreDialog by remember { mutableStateOf(false) }
     var showEmailDialog by remember { mutableStateOf(false) }
     var emailingBook by remember { mutableStateOf<Book?>(null) }
+    var selectedBook by remember { mutableStateOf<Book?>(null) }
 
     val coroutineScope = rememberCoroutineScope()
 
-    Column(modifier = modifier.padding(16.dp)) {
-        TextField(
-            value = searchQuery,
-            onValueChange = { viewModel.setSearchQuery(it) },
-            label = { Text("Search for a book") },
-            modifier = Modifier.fillMaxWidth()
-        )
+    val currentScreen = when {
+        selectedBook != null -> "detail"
+        else -> "list"
+    }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(onClick = { showGenreDialog = true }) {
-                Text("Filter: $selectedGenre")
-            }
-            Button(onClick = { viewModel.toggleSort() }) {
-                Text(if (isSorted) "Disable Sorting" else "Sort by Title")
-            }
-            Button(
-                onClick = { showEmailDialog = true },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
+    when (currentScreen) {
+        "detail" -> {
+            selectedBook?.let { book ->
+                BookDetailScreen(
+                    book = book,
+                    onNavigateBack = { selectedBook = null },
+                    onEdit = {
+                        editingBook = it
+                        selectedBook = null
+                    },
+                    onDelete = {
+                        viewModel.deleteBook(it)
+                        selectedBook = null
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Book deleted successfully",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    },
+                    onEmail = {
+                        emailingBook = it
+                        selectedBook = null
+                    },
+                    onProgressChange = { book, progress ->
+                        viewModel.updateBookProgress(book, progress)
+                        selectedBook = book.copy(progress = progress)
+                    }
                 )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Email,
-                    contentDescription = "Email Book List"
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Email List")
             }
         }
+        "list" -> {
+            Column(modifier = modifier.padding(16.dp)) {
+                TextField(
+                    value = searchQuery,
+                    onValueChange = { viewModel.setSearchQuery(it) },
+                    label = { Text("Search for a book") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-        if (showGenreDialog) {
-            AlertDialog(
-                onDismissRequest = { showGenreDialog = false },
-                confirmButton = {},
-                title = { Text("Select Genre") },
-                text = {
-                    Column {
-                        val genres = listOf(
-                            "All",
-                            "Academic Papers",
-                            "Action Adventure",
-                            "Comic",
-                            "Fantasy",
-                            "Historical",
-                            "Horror",
-                            "Manga",
-                            "Mystery",
-                            "Paranormal",
-                            "Romance",
-                            "Fiction",
-                            "Science Fiction & Fantasy",
-                            "Thriller"
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(onClick = { showGenreDialog = true }) {
+                        Text("Filter: $selectedGenre")
+                    }
+                    Button(onClick = { viewModel.toggleSort() }) {
+                        Text(if (isSorted) "Disable Sorting" else "Sort by Title")
+                    }
+                    Button(
+                        onClick = { showEmailDialog = true },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
                         )
-                        genres.forEach { genreOption ->
-                            TextButton(
-                                onClick = {
-                                    viewModel.setSelectedGenre(genreOption)
-                                    showGenreDialog = false
-                                }
-                            ) {
-                                Text(genreOption)
-                            }
-                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Email,
+                            contentDescription = "Email Book List"
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Email List")
                     }
                 }
-            )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+                if (showGenreDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showGenreDialog = false },
+                        confirmButton = {},
+                        title = { Text("Select Genre") },
+                        text = {
+                            Column {
+                                val genres = listOf(
+                                    "All",
+                                    "Academic Papers",
+                                    "Action Adventure",
+                                    "Comic",
+                                    "Fantasy",
+                                    "Historical",
+                                    "Horror",
+                                    "Manga",
+                                    "Mystery",
+                                    "Paranormal",
+                                    "Romance",
+                                    "Fiction",
+                                    "Science Fiction & Fantasy",
+                                    "Thriller"
+                                )
+                                genres.forEach { genreOption ->
+                                    TextButton(
+                                        onClick = {
+                                            viewModel.setSelectedGenre(genreOption)
+                                            showGenreDialog = false
+                                        }
+                                    ) {
+                                        Text(genreOption)
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }
 
-        val totalBooks = allBooks.size
-        val completedBooks = allBooks.count { it.progress == 100 }
-        Text(
-            text = "Books Read: $completedBooks / $totalBooks",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
+                Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(filteredBooks, key = { it.id }) { book ->
-                BookCard(
-                    book = book,
-                    onEdit = { editingBook = book },
-                    onDelete = { viewModel.deleteBook(book) },
-                    onEmail = { emailingBook = book },
-                    onProgressChange = { newProgress ->
-                        viewModel.updateBookProgress(book, newProgress)
-                    }
+                val totalBooks = allBooks.size
+                val completedBooks = allBooks.count { it.progress == 100 }
+                Text(
+                    text = "Books Read: $completedBooks / $totalBooks",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
-                HorizontalDivider()
+
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(filteredBooks, key = { it.id }) { book ->
+                        BookCard(
+                            book = book,
+                            onEdit = { editingBook = book },
+                            onDelete = { viewModel.deleteBook(book) },
+                            onEmail = { emailingBook = book },
+                            onProgressChange = { newProgress ->
+                                viewModel.updateBookProgress(book, newProgress)
+                            },
+                            onCardClick = { selectedBook = book }
+                        )
+                        HorizontalDivider()
+                    }
+                }
             }
         }
     }

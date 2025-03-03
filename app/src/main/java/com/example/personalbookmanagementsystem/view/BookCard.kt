@@ -22,7 +22,8 @@ fun BookCard(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onEmail: () -> Unit,
-    onProgressChange: (Int) -> Unit
+    onProgressChange: (Int) -> Unit,
+    onCardClick: () -> Unit
 ) {
     var pressed by remember { mutableStateOf(false) }
     val currentPage = rememberUpdatedState(book.currentPage)
@@ -47,8 +48,10 @@ fun BookCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { pressed = !pressed },
-        elevation = if (pressed) CardDefaults.cardElevation(defaultElevation = 8.dp) else CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .clickable {
+                onCardClick()
+            },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
