@@ -5,8 +5,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -29,7 +31,7 @@ fun BookListScreen(
 
     val context = LocalContext.current
     var editingBook by remember { mutableStateOf<Book?>(null) }
-    var showGenreDialog by remember { mutableStateOf(false) }
+    var showFilterSortDialog by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -49,12 +51,18 @@ fun BookListScreen(
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Button(onClick = { showGenreDialog = true }) {
-                Text("Filter: $selectedGenre")
+
+            Button(
+                onClick = { showFilterSortDialog = true }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Filter and Sort"
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Filter & Sort")
             }
-            Button(onClick = { viewModel.toggleSort() }) {
-                Text(if (isSorted) "Disable Sorting" else "Sort by Title")
-            }
+
             Button(
                 onClick = {
                     EmailUtils.shareBookList(context, filteredBooks)
@@ -78,43 +86,51 @@ fun BookListScreen(
             }
         }
 
-        if (showGenreDialog) {
-            AlertDialog(
-                onDismissRequest = { showGenreDialog = false },
-                confirmButton = {},
-                title = { Text("Select Genre") },
-                text = {
-                    Column {
-                        val genres = listOf(
-                            "All",
-                            "Academic Papers",
-                            "Action Adventure",
-                            "Comic",
-                            "Fantasy",
-                            "Historical",
-                            "Horror",
-                            "Manga",
-                            "Mystery",
-                            "Paranormal",
-                            "Romance",
-                            "Fiction",
-                            "Science Fiction & Fantasy",
-                            "Thriller"
-                        )
-                        genres.forEach { genreOption ->
-                            TextButton(
-                                onClick = {
-                                    viewModel.setSelectedGenre(genreOption)
-                                    showGenreDialog = false
-                                }
-                            ) {
-                                Text(genreOption)
-                            }
-                        }
-                    }
+        if (selectedGenre != "All" || isSorted) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                Text(
+                    text = "Active filters:",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                if (selectedGenre != "All") {
+                    AssistChip(
+                        onClick = { },
+                        label = { Text("Genre: $selectedGenre") },
+                        modifier = Modifier.padding(bottom = 4.dp) // Adds spacing between filters
+                    )
                 }
-            )
+
+                if (isSorted) {
+                    AssistChip(
+                        onClick = { },
+                        label = { Text("Sorted by title") }
+                    )
+                }
+            }
         }
+
+
+        FilterSortDialog(
+            showDialog = showFilterSortDialog,
+            currentGenre = selectedGenre,
+            isSorted = isSorted,
+            onGenreSelected = { genre ->
+                viewModel.setSelectedGenre(genre)
+            },
+            onSortToggled = {
+                viewModel.toggleSort()
+            },
+            onDismiss = {
+                showFilterSortDialog = false
+            }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
