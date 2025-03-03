@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 fun BookListScreen(
     viewModel: BookViewModel,
     snackbarHostState: SnackbarHostState,
+    onNavigateToBookDetail: (Book) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -53,7 +54,6 @@ fun BookListScreen(
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
             Button(
                 onClick = { showFilterSortDialog = true }
             ) {
@@ -161,7 +161,8 @@ fun BookListScreen(
                     },
                     onProgressChange = { newProgress ->
                         viewModel.updateBookProgress(book, newProgress)
-                    }
+                    },
+                    onClick = { onNavigateToBookDetail(book) }
                 )
                 HorizontalDivider()
             }
