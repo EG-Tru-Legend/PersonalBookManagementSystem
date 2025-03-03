@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,8 +22,7 @@ fun BookCard(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onEmail: () -> Unit,
-    onProgressChange: (Int) -> Unit,
-    onCardClick: () -> Unit
+    onProgressChange: (Int) -> Unit
 ) {
     var pressed by remember { mutableStateOf(false) }
     val currentPage = rememberUpdatedState(book.currentPage)
@@ -48,10 +47,8 @@ fun BookCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable {
-                onCardClick()
-            },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .clickable { pressed = !pressed },
+        elevation = if (pressed) CardDefaults.cardElevation(defaultElevation = 8.dp) else CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -71,8 +68,8 @@ fun BookCard(
                 Row {
                     IconButton(onClick = onEmail) {
                         Icon(
-                            imageVector = Icons.Default.Email,
-                            contentDescription = "Email Book Info"
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share Book Info"
                         )
                     }
                     IconButton(onClick = onEdit) {

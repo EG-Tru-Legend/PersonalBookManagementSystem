@@ -8,9 +8,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object EmailUtils {
-    fun sendBookDetailsEmail(context: Context, recipient: String, book: Book) {
-        val subject = "Book Details: ${book.title}"
-
+    fun shareBookDetails(context: Context, book: Book) {
         val formattedDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
             .format(Date(book.dateAdded.toLong()))
 
@@ -20,6 +18,7 @@ object EmailUtils {
             book.progress
         }
 
+        val subject = "Book Details: ${book.title}"
         val body = """
             |Book Details:
             |
@@ -31,18 +30,17 @@ object EmailUtils {
             |${if (book.totalPages > 0) "Current Page: ${book.currentPage}" else ""}
             |Progress: $progressPercentage%
             |
-            |Sent from Personal Book Management System
+            |Shared from Personal Book Management System
         """.trimMargin()
 
-        sendEmail(context, recipient, subject, body)
+        shareText(context, subject, body)
     }
 
-    fun sendBookListEmail(context: Context, recipient: String, books: List<Book>) {
-        val subject = "My Book List Summary"
-
+    fun shareBookList(context: Context, books: List<Book>) {
         val totalBooks = books.size
         val completedBooks = books.count { it.progress == 100 }
 
+        val subject = "My Book List Summary"
         val bodyBuilder = StringBuilder()
         bodyBuilder.append("Book List Summary:\n\n")
         bodyBuilder.append("Total Books: $totalBooks\n")
@@ -65,21 +63,24 @@ object EmailUtils {
             }
         }
 
-        bodyBuilder.append("\n\nSent from Personal Book Management System")
+        bodyBuilder.append("\n\nShared from Personal Book Management System")
 
-        sendEmail(context, recipient, subject, bodyBuilder.toString())
+        shareText(context, subject, bodyBuilder.toString())
     }
 
-    private fun sendEmail(context: Context, recipient: String, subject: String, body: String) {
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "message/rfc822"
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(recipient))
+    private fun shareText(context: Context, subject: String, text: String) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
             putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, body)
+            putExtra(Intent.EXTRA_TEXT, text)
         }
 
         try {
-            startActivity(context, Intent.createChooser(intent, "Send email using..."), null)
+            startActivity(
+                context,
+                Intent.createChooser(shareIntent, "Share via"),
+                null
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
