@@ -1,66 +1,85 @@
-# Personal Book Management System
+<div align="center">
 
-An Android app built with Kotlin and Jetpack Compose to help track your reading list, reading progress, and book details in a clean local-first experience.
+# 📚 Personal Book Manager
+
+**A clean, local-first Android app for tracking your reading list and progress.**
+
+![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat&logo=kotlin&logoColor=white)
+![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack_Compose-4285F4?style=flat&logo=jetpackcompose&logoColor=white)
+![Room](https://img.shields.io/badge/Room_DB-FF6F00?style=flat&logo=android&logoColor=white)
+![Min SDK](https://img.shields.io/badge/minSdk-24-brightgreen?style=flat)
+
+</div>
+
+---
+
+## Overview
+
+Personal Book Manager is an Android app built with **Kotlin and Jetpack Compose** that lets you manage your reading list entirely offline. Track progress, filter by genre, search by author, and share your list — all without a backend.
+
+---
 
 ## Features
 
-- Add, edit, and delete books
-- Track reading progress by percentage and current page
-- Search books by title or author
-- Filter by genre and sort by title
-- View book details on a dedicated screen
-- Share individual book details or your filtered book list via Android share sheet (email/messages/etc.)
-- Local persistence with Room database (offline support)
+- 📖 Add, edit, and delete books
+- 📊 Track reading progress by percentage or current page
+- 🔍 Search by title or author
+- 🏷️ Filter by genre and sort by title
+- 📤 Share book details or your full filtered list via Android share sheet
+- 💾 Fully offline — local persistence with Room database
 
-## Tech Stack
+---
 
-- Kotlin
-- Jetpack Compose (Material 3)
-- Android Architecture Components (ViewModel, StateFlow)
-- Room (local database)
-- Navigation pattern with drawer + screen state
-- Gradle Kotlin DSL
+## Tech stack
 
-## Project Structure
+| Layer | Technology |
+|---|---|
+| Language | Kotlin |
+| UI | Jetpack Compose (Material 3) |
+| State management | ViewModel + StateFlow |
+| Database | Room (local, offline-first) |
+| Navigation | Drawer + screen state pattern |
+| Build | Gradle Kotlin DSL |
 
-- model: Room entities, DAO, database setup
-- viewmodel: app state and business logic (search/filter/sort/progress)
-- view: main UI screens (book list, add book, book detail)
-- navigation: top bar, drawer, and screen routing/state
-- utils: reusable UI components, dialogs, sharing utilities
+---
 
-## Requirements
+## Project structure
 
-- Android Studio (latest stable recommended)
-- Android SDK:
-  - compileSdk: 35
-  - minSdk: 24
-  - targetSdk: 35
+```
+├── model/          # Room entities, DAO, database setup
+├── viewmodel/      # App state, business logic (search/filter/sort/progress)
+├── view/           # UI screens (book list, add book, book detail)
+├── navigation/     # Top bar, drawer, screen routing
+└── utils/          # Reusable UI components, dialogs, sharing utilities
+```
+
+---
+
+## Getting started
+
+**Requirements**
+- Android Studio (latest stable)
+- compileSdk 35 / minSdk 24 / targetSdk 35
 - JDK 11
 
-## Getting Started
+**Setup**
+```bash
+git clone https://github.com/EG-Tru-Legend/[repo-name]
+```
+1. Open in Android Studio
+2. Sync Gradle
+3. Run on emulator or physical device
 
-1. Clone the repository
-2. Open in Android Studio
-3. Sync Gradle
-4. Run on emulator or physical Android device
+---
 
-## How It Works
+## Status
 
-- Books are stored in a local Room database
-- The ViewModel loads and updates books through DAO operations
-- UI observes StateFlow values to update automatically
-- Progress can be updated either by percentage or current page
-- Filtering, sorting, and searching are applied in ViewModel state combination
+MVP is functional with core CRUD, progress tracking, search, filtering, and sharing.
 
-## Current Status
-
-MVP is functional with core CRUD, progress tracking, and sharing.
-
-## Roadmap Ideas
-
-- Add reading goals (weekly/monthly)
-- Add due dates and reminders
-- Add cover image support
-- Add export/import backup
-- Add unit/UI tests for key flows
+**Roadmap**
+- [ ] Reading goals (weekly/monthly targets)
+- [ ] Due dates and reminders
+- [ ] Cover image support
+- [ ] Export/import backup
+- [ ] Unit and UI tests
